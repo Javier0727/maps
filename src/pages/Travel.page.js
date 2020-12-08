@@ -1,25 +1,30 @@
 import React, { useEffect, useRef, useState } from "react";
 import { connect, useDispatch } from "react-redux";
 import * as Actions from "../store/actions";
-import { Form, Button } from "react-bootstrap";
+import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import Fade from "react-bootstrap/Fade";
+import { useHistory } from "react-router-dom";
+import Route from "../components/route";
 
-const Travel = () => {
+const Travel = (props) => {
   const [state, setState] = useState({
     origin: "",
     destination: "",
   });
   const mapsRef = useRef(null);
   const dispatch = useDispatch();
+  const history = useHistory();
   const [googleMapState, setGoogleMapState] = useState();
+  const {
+    clientName,
+    provideRouteAlternatives,
+    travelMode,
+    routes,
+  } = props.data;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setState({ ...state, [name]: value });
-  };
-
-  const dispatchSetData = () => {
-    dispatch(Actions.setData({ ...state }));
   };
 
   const createGoogleMap = () => {
@@ -43,12 +48,13 @@ const Travel = () => {
     var request = {
       origin,
       destination,
-      travelMode: "DRIVING",
-      provideRouteAlternatives: true,
+      travelMode,
+      provideRouteAlternatives,
     };
 
     directionsService.route(request, function (result, status) {
       if (status === "OK") {
+        dispatch(Actions.setRoutesData(result));
         for (var i = 0, len = result.routes.length; i < len; i++) {
           new window.google.maps.DirectionsRenderer({
             map: googleMapState,
@@ -66,43 +72,76 @@ const Travel = () => {
   };
 
   useEffect(() => {
-    const googleMapScript = document.createElement("script");
-    googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_MAPS_API}&libraries=places`;
-    googleMapScript.async = true;
-    window.document.body.appendChild(googleMapScript);
-    googleMapScript.addEventListener("load", () => {
-      createGoogleMap();
-    });
+    if (clientName !== "") {
+      const googleMapScript = document.createElement("script");
+      googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_MAPS_API}&libraries=places`;
+      googleMapScript.async = true;
+      window.document.body.appendChild(googleMapScript);
+      googleMapScript.addEventListener("load", () => {
+        createGoogleMap();
+      });
+    } else {
+      history.push("/");
+    }
   }, []);
 
   return (
     <Fade appear={true} in={true} timeout={1000}>
-      <div>
-        <Form>
-          <Form.Group>
-            <Form.Label>Punto de partida</Form.Label>
-            <Form.Control name="origin" onChange={handleChange} type="text" />
-            <Form.Text className="text-muted">
-              Será el punto de partida
-            </Form.Text>
-          </Form.Group>
-          <Form.Group>
-            <Form.Label>Punto de destino</Form.Label>
-            <Form.Control
-              name="destination"
-              onChange={handleChange}
-              type="text"
-            />
-            <Form.Text className="text-muted">
-              Será el punto de llegada
-            </Form.Text>
-          </Form.Group>
-          <Button variant="primary" onClick={calcRoute}>
-            Cotizar
-          </Button>
-        </Form>
-        <div style={{ width: "100%", height: "40rem" }} ref={mapsRef}></div>
-      </div>
+      <Container
+        fluid
+        className="vh-100 d-flex flex-column justify-content-center"
+      >
+        <Row className="overflow-auto">
+          <Col
+            xs={12}
+            md={4}
+            className="overflow-auto"
+            style={{ height: "90vh" }}
+          >
+            <h3 className="p-3 text-center">
+              ¿Esta vez a donde iremos{" "}
+              <span className="text-primary">{clientName}</span>?
+            </h3>
+            <Form onSubmit={calcRoute} style={{ marginBottom: "1.5rem" }}>
+              <Form.Group>
+                <Form.Label>
+                  <span className="text-primary">¿De dónde</span> sales?
+                </Form.Label>
+                <Form.Control
+                  name="origin"
+                  onChange={handleChange}
+                  type="text"
+                  placeholder="Origen"
+                />
+              </Form.Group>
+              <Form.Group>
+                <Form.Label>
+                  <span className="text-primary">¿A dónde</span> te diriges?
+                </Form.Label>
+                <Form.Control
+                  name="destination"
+                  onChange={handleChange}
+                  type="text"
+                  placeholder="Destino"
+                />
+              </Form.Group>
+              <Button className="w-100" variant="primary" onClick={calcRoute}>
+                Buscar ruta
+              </Button>
+            </Form>
+            {routes.length > 0 &&
+              routes.map((route) => (
+                <Route
+                  key={`${route.legs[0].distance.text}-Route`}
+                  data={route.legs[0]}
+                ></Route>
+              ))}
+          </Col>
+          <Col xs={12} md={8}>
+            <div className="w-100 mapsH" ref={mapsRef}></div>
+          </Col>
+        </Row>
+      </Container>
     </Fade>
   );
 };

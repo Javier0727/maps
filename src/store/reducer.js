@@ -7,7 +7,8 @@ const initialState = {
   travelMode: "DRIVING",
   selectedRoute: 0,
   clientName: "",
-  dumy: {},
+  routes: [],
+  orderBy: "KM",
 };
 
 const reducer = (state = initialState, action) => {
@@ -25,13 +26,15 @@ const reducer = (state = initialState, action) => {
         ...state,
         selectedRoute: index,
       };
-    case "DUMY_ASYNC":
-      const { payload } = action;
+    case Actions.SET_ROUTES_DATA:
+      const { routes, request } = action.payload;
       return {
         ...state,
-        dumy: { ...payload },
+        routes: [...routes],
+        origin: request.origin.query,
+        destination: request.destination.query,
       };
-    case Actions.PUT_CLIENT_NAME:
+    case Actions.SET_CLIENT_NAME:
       const { name } = action.payload;
       return {
         ...state,
