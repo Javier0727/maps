@@ -6,22 +6,21 @@ import {
   SET_ROUTES_DATA_ASYNC,
 } from "../store/actions";
 
-function* setClientName({ clientName }) {
+function* setClientName({ payload }) {
   try {
-    yield put({ type: SET_CLIENT_NAME_ASYNC, payload: { name: clientName } });
+    yield put({ type: SET_CLIENT_NAME_ASYNC, payload });
   } catch (e) {
     console.log(e);
   }
 }
 
-export function* mySagas(props) {
-  console.log(props);
+export function* mySagas() {
   yield takeLatest(SET_CLIENT_NAME, setClientName);
 }
 
-function* setRoutesData({ data }) {
+function* setRoutesData({ payload }) {
   try {
-    yield put({ type: SET_ROUTES_DATA_ASYNC, payload: data });
+    yield put({ type: SET_ROUTES_DATA_ASYNC, payload });
   } catch (e) {
     console.log(e);
   }

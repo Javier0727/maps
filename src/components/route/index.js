@@ -12,38 +12,36 @@ const Route = ({ data }) => {
     start_location,
   } = data;
   return (
-    <Jumbotron fluid className="shadow-sm py-3 rounded itemH">
+    <Jumbotron fluid className="shadow-sm py-3 rounded itemH mb-3">
       <Container fluid className="h-100">
         <Row className="h-100">
-          <Col xs={2}></Col>
-          <Col xs={6} className="d-flex flex-column justify-content-between">
+          <Col
+            xs={{ span: 7, offset: 1 }}
+            className="d-flex flex-column justify-content-between"
+          >
             <div>
-              <div style={{ fontSize: ".9rem" }}>{start_address}</div>
-              <div style={{ fontSize: ".7rem" }} className="text-secondary">
+              <div className="text9 text-truncate">{start_address}</div>
+              <div className="text-secondary text7">
                 @{start_location.lat()} {start_location.lng()}
               </div>
             </div>
 
             <div>
-              <div style={{ fontSize: ".9rem" }}>{end_address}</div>
-              <div style={{ fontSize: ".7rem" }} className="text-secondary">
+              <div className="text9 text-truncate">{end_address}</div>
+              <div className="text-secondary text7">
                 @{end_location.lat()} {end_location.lng()}
               </div>
             </div>
           </Col>
-          <Col xs={4} className="d-flex flex-column justify-content-between">
-            <div>
-              <div style={{ fontSize: ".8rem" }}>{duration.text}</div>
-              <div style={{ fontSize: ".7rem" }} className="text-secondary">
-                de viaje
-              </div>
+          <Col xs={3} className="d-flex flex-column justify-content-between">
+            <div className="text-right">
+              <div className="text8">{duration.text}</div>
+              <div className="text-secondary text7">de viaje</div>
             </div>
 
-            <div>
-              <div style={{ fontSize: ".8rem" }}>{distance.text}</div>
-              <div style={{ fontSize: ".7rem" }} className="text-secondary">
-                de viaje
-              </div>
+            <div className="text-right">
+              <div className="text8">{distance.text}</div>
+              <div className="text-secondary text7">de viaje</div>
             </div>
           </Col>
         </Row>
