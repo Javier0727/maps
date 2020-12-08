@@ -1,34 +1,34 @@
-export const SET_ORIGIN_AND_DESTINATION = "SET_ORIGIN_AND_DESTINATION";
-export const SET_SELECTED_ROUTE = "SET_SELECTED_ROUTE";
-export const PUT_CLIENT_NAME = "PUT_CLIENT_NAME";
+import { orderBySelect } from "../constants";
+
 export const SET_CLIENT_NAME = "SET_CLIENT_NAME";
 export const SET_CLIENT_NAME_ASYNC = "SET_CLIENT_NAME_ASYNC";
 export const SET_ROUTES_DATA = "SET_ROUTES_DATA";
 export const SET_ROUTES_DATA_ASYNC = "SET_ROUTES_DATA_ASYNC";
-
-// export const setSelectedRoute = (index) => ({
-//   type: SET_SELECTED_ROUTE,
-//   payload: index,
-// });
-
-// export const getDataTryal = (payload) => ({
-//   type: "DUMY",
-//   payload,
-// });
-
-export const setData = (data) => ({
-  type: SET_ORIGIN_AND_DESTINATION,
-  payload: data,
-});
+export const ORDER_BY_DISTANCE = "ORDER_BY_DISTANCE";
+export const ORDER_BY_DISTANCE_ASYNC = "ORDER_BY_DISTANCE_ASYNC";
+export const ORDER_BY_TIME = "ORDER_BY_TIME";
+export const ORDER_BY_TIME_ASYNC = "ORDER_BY_TIME_ASYNC";
 
 export const setRoutesData = (data) => ({
   type: SET_ROUTES_DATA,
   payload: data,
 });
 
-export const setNameClient = ({ clientName }) => {
-  return {
-    type: SET_CLIENT_NAME,
-    payload: { name: clientName },
-  };
+export const setNameClient = ({ clientName }) => ({
+  type: SET_CLIENT_NAME,
+  payload: { name: clientName },
+});
+
+export const orderRoutes = ({ orderBy, routes }) => {
+  if (orderBy === orderBySelect[0].value) {
+    return {
+      type: ORDER_BY_DISTANCE,
+      payload: { routes },
+    };
+  } else {
+    return {
+      type: ORDER_BY_TIME,
+      payload: { routes },
+    };
+  }
 };

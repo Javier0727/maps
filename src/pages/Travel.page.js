@@ -5,6 +5,7 @@ import { Form, Button, Container, Row, Col } from "react-bootstrap";
 import Fade from "react-bootstrap/Fade";
 import { useHistory } from "react-router-dom";
 import Route from "../components/route";
+import { orderBySelect } from "../constants";
 
 const Travel = (props) => {
   const [state, setState] = useState({
@@ -12,6 +13,8 @@ const Travel = (props) => {
     destination: "",
   });
   const mapsRef = useRef(null);
+  const mapsAutocompleteFrom = useRef(null);
+  const mapsAutocompleteTo = useRef(null);
   const dispatch = useDispatch();
   const history = useHistory();
   const [googleMapState, setGoogleMapState] = useState();
@@ -23,28 +26,32 @@ const Travel = (props) => {
   } = props.data;
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setState({ ...state, [name]: value });
+    const { origin, destination } = e;
+    setState({ ...state, origin, destination });
   };
 
   const createGoogleMap = () => {
     const directionsRendererInstance = new window.google.maps.DirectionsRenderer();
-    var mexico = new window.google.maps.LatLng(
-      19.382259692315973,
-      -99.11066526656647
-    );
+    var mexico = { lat: 23.6, lng: -102.5 };
     var mapOptions = {
-      zoom: 7,
+      zoom: 5,
       center: mexico,
+      mapTypeControl: false,
+      panControl: false,
+      streetViewControl: false,
     };
     const googleMap = new window.google.maps.Map(mapsRef.current, mapOptions);
     directionsRendererInstance.setMap(googleMap);
+    new window.google.maps.places.Autocomplete(mapsAutocompleteFrom.current);
+    new window.google.maps.places.Autocomplete(mapsAutocompleteTo.current);
     setGoogleMapState(googleMap);
   };
 
   const calcRoute = () => {
     const directionsService = new window.google.maps.DirectionsService();
-    const { origin, destination } = state;
+    let origin = mapsAutocompleteFrom.current.value;
+    let destination = mapsAutocompleteTo.current.value;
+    handleChange({ origin, destination });
     var request = {
       origin,
       destination,
@@ -69,6 +76,11 @@ const Travel = (props) => {
         }
       }
     });
+  };
+
+  const handleChangeOrder = (e) => {
+    const { value } = e.target;
+    dispatch(Actions.orderRoutes({ orderBy: value, routes }));
   };
 
   useEffect(() => {
@@ -112,6 +124,8 @@ const Travel = (props) => {
                   onChange={handleChange}
                   type="text"
                   placeholder="Origen"
+                  ref={mapsAutocompleteFrom}
+                  value={state.origin}
                 />
               </Form.Group>
               <Form.Group>
@@ -123,12 +137,31 @@ const Travel = (props) => {
                   onChange={handleChange}
                   type="text"
                   placeholder="Destino"
+                  ref={mapsAutocompleteTo}
+                  value={state.destination}
                 />
               </Form.Group>
               <Button className="w-100" variant="primary" onClick={calcRoute}>
                 Buscar ruta
               </Button>
             </Form>
+            {routes.length > 0 && (
+              <Form.Group className="d-flex justify-content-end align-items-center">
+                <Form.Label className="mb-0 mr-2 text9">Ordenar por</Form.Label>
+                <Form.Control
+                  className="w-25"
+                  size="sm"
+                  as="select"
+                  onChange={handleChangeOrder}
+                >
+                  {orderBySelect.map((order) => (
+                    <option key={`${order.value}-select`} value={order.value}>
+                      {order.name}
+                    </option>
+                  ))}
+                </Form.Control>
+              </Form.Group>
+            )}
             {routes.length > 0 &&
               routes.map((route) => (
                 <Route
